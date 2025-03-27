@@ -1,1 +1,0 @@
-# Amharic_transliterator
