@@ -57,6 +57,22 @@
         </div>
       </div>
     </div>
+
+    <button id="installBtn" style="display:none;">
+  📲 Install App
+</button>
+
+<script>
+  let deferredPrompt;
+  window.addEventListener('beforeinstallprompt', (e) => {
+    deferredPrompt = e;
+    document.getElementById('installBtn').style.display = 'block';
+  });
+
+  document.getElementById('installBtn').addEventListener('click', () => {
+    deferredPrompt.prompt();
+  });
+</script>
     
     <!-- Import section -->
     <div class="import-section">
