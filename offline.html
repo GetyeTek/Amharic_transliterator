@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#7c3aed">
+  <title>Amharic Transliterator (Offline)</title>
+  <style>
+    :root {
+      --primary-color: #7c3aed;
+      --background: #f3f4f6;
+      --text-color: #1f2937;
+    }
+    body {
+      font-family: 'Poppins', -apple-system, BlinkMacSystemFont, sans-serif;
+      background-color: var(--background);
+      color: var(--text-color);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+      padding: 20px;
+      text-align: center;
+      line-height: 1.6;
+    }
+    .offline-container {
+      max-width: 500px;
+      padding: 30px;
+      border-radius: 12px;
+      background-color: white;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+    h1 {
+      color: var(--primary-color);
+      margin-bottom: 20px;
+    }
+    p {
+      margin-bottom: 25px;
+    }
+    .icon {
+      font-size: 60px;
+      margin-bottom: 20px;
+    }
+    button {
+      background-color: var(--primary-color);
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+    button:hover {
+      background-color: #6d28d9;
+    }
+    .hidden {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="offline-container">
+    <div class="icon">📶</div>
+    <h1>You're Offline</h1>
+    <p>The Amharic Transliterator requires an internet connection for first-time setup.</p>
+    <p>Once loaded, you can use basic features offline.</p>
+    
+    <div id="cached-content-available" class="hidden">
+      <p>You have cached content available.</p>
+      <button id="retry-button">Retry Connection</button>
+    </div>
+    
+    <div id="no-content-available">
+      <p>Please reconnect to the internet to use the app.</p>
+      <button id="reload-button">Reload App</button>
+    </div>
+  </div>
+
+  <script>
+    // Check if cached content exists
+    if (caches && caches.keys) {
+      caches.keys().then(cacheNames => {
+        if (cacheNames.length > 0) {
+          document.getElementById('cached-content-available').classList.remove('hidden');
+          document.getElementById('no-content-available').classList.add('hidden');
+        }
+      });
+    }
+
+    // Button functionality
+    document.getElementById('retry-button').addEventListener('click', () => {
+      window.location.href = '/';
+    });
+
+    document.getElementById('reload-button').addEventListener('click', () => {
+      window.location.reload();
+    });
+
+    // Auto-recheck connection every 10 seconds
+    setInterval(() => {
+      fetch('/').then(() => {
+        window.location.href = '/';
+      }).catch(() => {
+        // Still offline
+      });
+    }, 10000);
+  </script>
+</body>
+</html>

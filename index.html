@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#7c3aed">
+  <meta name="description" content="English to Amharic transliteration tool">
+  <title>Amharic Transliterator</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <!-- PWA Manifest -->
+  <link rel="manifest" href="manifest.json">
+  <!-- iOS Meta Tags -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="AmharicTrans">
+  <link rel="apple-touch-icon" href="icons/icon-152x152.png">
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="icons/icon-32x32.png">
+</head>
+<body>
+  <div class="container">
+    <!-- Theme toggle -->
+    <div class="theme-toggle">
+      <span class="sun-icon">☀️</span>
+      <label class="switch">
+        <input type="checkbox" id="theme-switch">
+        <span class="slider"></span>
+      </label>
+      <span class="moon-icon">🌙</span>
+    </div>
+
+    <h1>Amharic Transliterator</h1>
+    <p class="subtitle">Type in English to get Amharic transliteration</p>
+
+    <!-- Transliteration section -->
+    <div class="transliteration-container">
+      <div id="transliteration-preview" class="transliteration-preview"></div>
+      
+      <div id="suggestions" class="suggestions-container"></div>
+      
+      <textarea 
+        id="input" 
+        class="input-textarea" 
+        placeholder="Type here to transliterate..."
+        autocomplete="off"
+        autocorrect="off"
+        spellcheck="false"
+      ></textarea>
+      
+      <div class="controls">
+        <div class="buttons">
+          <button id="file-btn" class="btn outline-btn">
+            <span class="btn-icon">📤</span>
+            Import Dictionary
+          </button>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Import section -->
+    <div class="import-section">
+      <h2>Import Words Dictionary</h2>
+      <p>Upload a JSON file with a "words" array to enhance word suggestions.</p>
+      <input type="file" id="fileInput" accept=".json" class="file-input">
+    </div>
+    
+    <!-- Notes section -->
+    <div class="notes-section">
+      <h2>Your Notes</h2>
+      <div id="notes-list" class="notes-list"></div>
+    </div>
+  </div>
+
+  <!-- Floating Action Buttons -->
+  <button id="float-copy-btn" class="float-btn float-btn-right">
+    <span class="float-btn-icon">📋</span>
+  </button>
+  
+  <button id="float-save-btn" class="float-btn float-btn-left">
+    <span class="float-btn-icon">💾</span>
+  </button>
+
+  <!-- Toast notification -->
+  <div id="toast" class="toast"></div>
+
+  <!-- Service Worker Registration -->
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('sw.js')
+          .then(registration => {
+            console.log('ServiceWorker registration successful');
+            
+            // Check for updates periodically
+            setInterval(() => {
+              registration.update().then(() => {
+                console.log('Checked for service worker update');
+              });
+            }, 60 * 60 * 1000); // Check every hour
+          })
+          .catch(err => {
+            console.log('ServiceWorker registration failed: ', err);
+          });
+      });
+    }
+
+    // Install Prompt Handling
+    let deferredPrompt;
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      
+      // Show install button if not already shown
+      if (!document.getElementById('float-install-btn')) {
+        const floatInstallBtn = document.createElement('button');
+        floatInstallBtn.id = 'float-install-btn';
+        floatInstallBtn.className = 'float-btn float-btn-left';
+        floatInstallBtn.style.bottom = '170px';
+        floatInstallBtn.title = 'Install App';
+        floatInstallBtn.innerHTML = '<span class="float-btn-icon">⬇️</span>';
+        floatInstallBtn.addEventListener('click', () => {
+          deferredPrompt.prompt();
+          deferredPrompt.userChoice.then((choiceResult) => {
+            if (choiceResult.outcome === 'accepted') {
+              showToast('App installed successfully!', 'success');
+            }
+            floatInstallBtn.style.display = 'none';
+            deferredPrompt = null;
+          });
+        });
+        document.body.appendChild(floatInstallBtn);
+      }
+    });
+
+    // Track app installation
+    window.addEventListener('appinstalled', () => {
+      console.log('PWA was installed');
+      const installBtn = document.getElementById('float-install-btn');
+      if (installBtn) installBtn.style.display = 'none';
+    });
+  </script>
+
+  <!-- Main Application Script -->
+  <script src="script.js"></script>
+</body>
+</html>
